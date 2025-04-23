@@ -5,14 +5,15 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 import torch
 
 # === Load Hugging Face Models ===
-embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', device='cpu')
+
 model_name = "google/flan-t5-base"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 generator = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
 # === Streamlit App ===
-st.title("📦 TariffHunterGPT Dashboard")
-st.subheader("🔍 Analyze or Create Product CSVs with AI Assistance")
+st.title("TariffHunterGPT Dashboard")
+st.subheader("Analyze or Create Product CSVs with AI Assistance")
 
 option = st.radio("Select Mode:", ("Upload CSV", "Type Product Ideas"))
 
@@ -34,7 +35,7 @@ if option == "Upload CSV":
             filtered_df = filtered_df[filtered_df["tariff_vulnerability"] == vulnerability_filter]
 
         st.dataframe(filtered_df)
-        st.download_button("📥 Download Filtered Results", filtered_df.to_csv(index=False).encode('utf-8'), file_name="filtered_products.csv", mime='text/csv')
+        st.download_button("Download Filtered Results", filtered_df.to_csv(index=False).encode('utf-8'), file_name="filtered_products.csv", mime='text/csv')
 
 elif option == "Type Product Ideas":
     product_input = st.text_area("Enter product titles and descriptions (one per line):", height=250)
@@ -81,4 +82,4 @@ elif option == "Type Product Ideas":
         st.success("AI analysis complete!")
         st.dataframe(df)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download CSV", csv, file_name="ai_generated_products.csv", mime="text/csv")
+        st.download_button("Download CSV", csv, file_name="ai_generated_products.csv", mime="text/csv")

@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 # === Load Data ===
-st.title("📦 TariffHunterGPT Dashboard")
-st.subheader("🧠 AI Analysis of Product Tariff Vulnerability")
+st.title("TariffHunterGPT Dashboard")
+st.subheader("AI Analysis of Product Tariff Vulnerability")
 
 uploaded_file = st.file_uploader("Upload a classified CSV file", type=["csv"])
 
