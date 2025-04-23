@@ -1,0 +1,35 @@
+electronics:
+  name: "Electronics Manufacturing"
+  keywords: ["electronic", "circuit", "chip", "pcb", "cable", "adapter"]
+  common_countries: ["Vietnam", "Mexico", "Malaysia", "Thailand"]
+  common_alternatives: ["Vietnam", "Mexico", "Malaysia"]
+  labor_cost_index: 0.85
+  lead_time: "3-5 weeks"
+  considerations:
+    - "Precision engineering requirements"
+    - "Component sourcing availability"
+    - "IP protection concerns"
+
+textiles:
+  name: "Textile and Apparel"
+  keywords: ["fabric", "textile", "clothing", "garment", "apparel"]
+  common_countries: ["Vietnam", "Bangladesh", "India", "Indonesia"]
+  common_alternatives: ["Vietnam", "Bangladesh", "India"]
+  labor_cost_index: 0.75
+  lead_time: "4-8 weeks"
+  considerations:
+    - "Fabric sourcing availability"
+    - "Minimum order quantities"
+    - "Ethical manufacturing certifications"
+
+home_goods:
+  name: "Home and Kitchen Products"
+  keywords: ["home", "kitchen", "furniture", "decor", "cookware"]
+  common_countries: ["India", "Mexico", "Turkey", "Poland"]
+  common_alternatives: ["India", "Mexico", "Turkey"]
+  labor_cost_index: 0.9
+  lead_time: "3-6 weeks"
+  considerations:
+    - "Material quality requirements"
+    - "Design complexity"
+    - "Shipping costs (bulkiness)"
