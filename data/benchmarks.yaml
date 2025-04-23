@@ -1,0 +1,24 @@
+# Global production benchmarks by category
+electronics:
+  china:
+    unit_cost: 12.50
+    lead_time: "3-5 weeks"
+    quality: 4.2
+  vietnam:
+    unit_cost: 14.20  
+    lead_time: "4-6 weeks"
+    quality: 4.0
+  mexico:
+    unit_cost: 16.80
+    lead_time: "2-3 weeks" 
+    quality: 4.1
+
+textiles:
+  china:
+    unit_cost: 8.30
+    lead_time: "4-8 weeks"
+    quality: 3.8
+  bangladesh:
+    unit_cost: 7.90
+    lead_time: "6-10 weeks"
+    quality: 3.5
