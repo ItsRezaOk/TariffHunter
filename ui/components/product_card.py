@@ -2,10 +2,11 @@
 import streamlit as st
 from typing import Dict
 
+#OLD
 def render(product: Dict):
     """Render a detailed product card with key metrics"""
     with st.container():
-        st.subheader("📦 Product Overview")
+        st.subheader("Product Overview")
         
         # Main metrics
         col1, col2, col3 = st.columns(3)

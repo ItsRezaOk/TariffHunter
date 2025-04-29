@@ -1,11 +1,11 @@
 # tariffhunter/ui/dashboard.py
-import streamlit as st
-import pandas as pd
-from datetime import datetime
+import streamlit as st #Wanted to start with easy web app building
+import pandas as pd #Handle my tables and spreadsheets
+from datetime import datetime #Timestamp when things made, when scraping happend
 from typing import List, Dict
 from pathlib import Path
 
-# Import our core analyzers
+# Import core analyzers
 from core.origin_analyzer import OriginAnalyzer
 from core.sales_analyzer import SalesAnalyzer
 from core.sourcing_advisor import SourcingAdvisor
@@ -414,7 +414,7 @@ def display_enhanced_sourcing(result):
                         st.write(f"- {step}")
     
     # 4. Market Intelligence
-    st.subheader("📈 Market Trends & Insights", divider="violet")
+    st.subheader("Market Trends & Insights", divider="violet")
     if trends := result.get('market_trends'):
         st.line_chart(
             pd.DataFrame(trends['price_trends']).set_index('month'),

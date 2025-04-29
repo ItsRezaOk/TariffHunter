@@ -10,14 +10,14 @@ from sentence_transformers import util
 class OriginAnalyzer:
     def __init__(self):
 
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu' #Use torch for GPU
     
-        # Load model with proper device mapping
+        # Sentence transformer model to understand Human-English
         self.embedder = SentenceTransformer(
             'sentence-transformers/all-MiniLM-L6-v2',
             device=self.device
         )
-        self.embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        self.embedder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', device='cpu')
         self.china_provinces = [
             'guangdong', 'zhejiang', 'jiangsu', 'shandong', 'fujian',
             'shanghai', 'beijing', 'tianjin', 'chongqing', 'sichuan'
@@ -58,18 +58,19 @@ class OriginAnalyzer:
     
         try:
             # Calculate similarity scores
-            text_embedding = self.embedder.encode(text, convert_to_tensor=True)
-            phrase_embeddings = self.embedder.encode(china_phrases, convert_to_tensor=True)
+            text_embedding = self.embedder.encode(text, convert_to_tensor=True)  # our text gets embedded using our Transformer
+            phrase_embeddings = self.embedder.encode(china_phrases, convert_to_tensor=True) #phrases get embedded for comparason
         
             # Calculate cosine similarities
-            similarities = util.cos_sim(text_embedding, phrase_embeddings)[0]
-            max_similarity = float(torch.max(similarities))
+            similarities = util.cos_sim(text_embedding, phrase_embeddings)[0] # 1 if identical -1 if opposite
+            max_similarity = float(torch.max(similarities)) #similatity becomes a list of the scores, picks the max score - closes china phrase matched
         
-            # Additional keyword indicators
+            # Backup Method - If Transformers dosnt work
+            #Goes through phrases and looks for exact matches because they sometimes miss.
             keyword_score = sum(1 for kw in china_phrases if kw in text.lower()) / len(china_phrases)
         
             # Combined score (weighted average)
-            combined_score = 0.7 * max_similarity + 0.3 * keyword_score
+            combined_score = 0.7 * max_similarity + 0.3 * keyword_score #more importance on max_similarity
         
             # Determine result
             if combined_score > 0.65:
@@ -80,19 +81,21 @@ class OriginAnalyzer:
         
         except Exception as e:
             print(f"Error in similarity calculation: {e}")
-            return {"made_in_china": "Unknown", "confidence": 0}
+            return {"made_in_china": "Unknown", "confidence": 0} #Error :(
     
+   #Finding extra facts about our chinese products from (Title, description)
+   #Main and more complex method of extraction, simpler detection of keywords is further below
     def _detect_chinese_details(self, text: str) -> Dict:
         """Extract specific details about Chinese origin"""
         # Detect province
-        places = GeoText(text)
+        places = GeoText(text) #GeoText tries to find any country realted names in text
         province = next(
-            (p.lower() for p in places.countries.get('cn', []) 
-            if p.lower() in self.china_provinces
-        ), None)
+            (p.lower() for p in places.countries.get('cn', [])  #from results get places linked to cn (China)
+            if p.lower() in self.china_provinces # make lowercase and find if its one of chinas main providences(from our list)
+        ), None) #take first matching
         
         # Detect factory/supplier mentions
-        factory_mentioned = any(kw in text for kw in self.factory_keywords)
+        factory_mentioned = any(kw in text for kw in self.factory_keywords) #checks out keyword lists if any supplier or factory is mentioned
         supplier_mentioned = any(kw in text for kw in self.supplier_keywords)
         
         # Extract origin phrases
@@ -112,10 +115,10 @@ class OriginAnalyzer:
     
     def _detect_other_origin(self, text: str) -> Dict:
         """Detect likely origin for non-China products"""
-        countries = GeoText(text).countries
+        countries = GeoText(text).countries #find any countries in the text
         if countries:
-            # Return the first mentioned country that's not China
-            for country, cities in countries.items():
+            # Return the first mentioned country that's not China IT: ["Milan"]
+            for country, cities in countries.items(): # find country and city of this other supplier
                 if country.lower() != 'cn':
                     return {
                         "likely_country": country,
@@ -126,15 +129,17 @@ class OriginAnalyzer:
     def _extract_origin_phrases(self, text: str) -> Optional[str]:
         """Extract specific origin-related phrases from text"""
         patterns = [
-            r"made in ([\w\s]+)", r"manufactured in ([\w\s]+)",
-            r"produced in ([\w\s]+)", r"factory in ([\w\s]+)",
+            r"made in ([\w\s]+)", r"manufactured in ([\w\s]+)", #Regular Expression Patterns
+            r"produced in ([\w\s]+)", r"factory in ([\w\s]+)", #([\w\s]+) multiple words, letters, and spaces
             r"origin:? ([\w\s]+)", r"sourced from ([\w\s]+)"
         ]
         matches = []
-        for pattern in patterns:
-            matches.extend(re.findall(pattern, text, re.IGNORECASE))
-        return "; ".join(set(matches)) if matches else None
+        for pattern in patterns: #for the 6 patterns
+            matches.extend(re.findall(pattern, text, re.IGNORECASE)) #using regex find all the patterns, case insensetive
+        return "; ".join(set(matches)) if matches else None #add all matches to the list seperated by ;
     
+
+    #Simple detection for OEM and other keywords
     def _detect_production_type(self, text: str) -> str:
         """Estimate production relationship type"""
         if "oem" in text:
@@ -145,6 +150,7 @@ class OriginAnalyzer:
             return "Private Label"
         return "Unknown"
     
+    #More simple detection
     def _estimate_supplier_tier(self, text: str) -> str:
         """Estimate supplier tier based on keywords"""
         if any(kw in text for kw in ["manufacturer", "factory"]):

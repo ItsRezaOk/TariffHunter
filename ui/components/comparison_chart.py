@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from typing import Dict
 
+#OLD
 def render(product: Dict):
     """Render China vs. alternative sourcing comparison"""
     if product.get('made_in_china') != "Yes" or not product.get('country_comparisons'):
